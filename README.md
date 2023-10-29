@@ -16,8 +16,8 @@
 4. Removed "NO_AUTO_CREATE_USER" from the first line in basedata.sql
 
 # Group Members:
-Aiza Khurram  21L-5771
-Minaal Khurram 21L-5828
-Tayyab Nadeem  21L-5830
-Aaon Raza  21L-6055
+1. Aiza Khurram  21L-5771
+2. Minaal Khurram 21L-5828
+3. Tayyab Nadeem  21L-5830
+4. Aaon Raza  21L-6055
    
