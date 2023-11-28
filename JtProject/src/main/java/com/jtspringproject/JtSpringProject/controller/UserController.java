@@ -63,7 +63,9 @@ public class UserController{
 		User u = this.userService.checkLogin(username, pass);
 		System.out.println(u.getUsername());
 		if(u.getUsername().equals(username)) {	
-			
+			if (u.getUsername().equals("admin")){
+				return new ModelAndView("redirect:/admin/login");
+			}
 			res.addCookie(new Cookie("username", u.getUsername()));
 			ModelAndView mView  = new ModelAndView("index");	
 			mView.addObject("user", u);
