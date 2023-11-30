@@ -59,3 +59,6 @@ INSERT INTO PRODUCT (description, image, name, price, quantity, weight, category
 -- create indexes
 CREATE INDEX FK7u438kvwr308xcwr4wbx36uiw ON PRODUCT (category_id);
 CREATE INDEX FKt23apo8r9s2hse1dkt95ig0w5 ON PRODUCT (customer_id);
+
+ALTER TABLE CUSTOMER
+ADD UNIQUE (username);
