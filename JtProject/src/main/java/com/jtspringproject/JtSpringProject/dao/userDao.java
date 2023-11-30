@@ -29,6 +29,12 @@ public class userDao {
 		List<User>  userList = session.createQuery("from CUSTOMER").list();
         return userList;
     }
+   @Transactional
+     public boolean userExists(String username) {
+		Query query = sessionFactory.getCurrentSession().createQuery("from CUSTOMER where username = :username");
+		query.setParameter("username",username);
+		return !query.getResultList().isEmpty();
+     }
     
     @Transactional
 	public User saveUser(User user) {
