@@ -59,7 +59,7 @@ class JtSpringProjectApplicationTests {
 		assertEquals("userLogin", result);
 	}
 	@Test
-	void testAdminLogin() {
+	void testAdminLogin() {//
 		String result = adminController.adminlogin();
 
 		assertEquals("adminlogin", result);
