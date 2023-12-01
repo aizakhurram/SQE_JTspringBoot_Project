@@ -37,13 +37,26 @@ public class UserController{
 
 	@Autowired
 	private productService productService;
-
+	String usernameforclass = "";
+	int useridforclass;
 	@GetMapping("/register")
 	public String registerUser()
 	{
 		return "register";
 	}
-
+	@GetMapping("/updateProfile")
+	public String updateUser() {
+		return "updateProfile";
+	}
+	@GetMapping("/index")
+	public String index(Model model) {
+		if (usernameforclass == null || usernameforclass.isEmpty()) {
+			return "userLogin";
+		} else {
+			model.addAttribute("username", usernameforclass);
+			return "index";
+		}
+	}
 	@GetMapping("/buy")
 	public String buy()
 	{
@@ -70,6 +83,10 @@ public class UserController{
 				return new ModelAndView("redirect:/admin/login");
 			}
 			res.addCookie(new Cookie("username", u.getUsername()));
+
+			usernameforclass=u.getUsername();
+			useridforclass=u.getId();
+
 			ModelAndView mView  = new ModelAndView("index");	
 			mView.addObject("user", u);
 			List<Product> products = this.productService.getProducts();
@@ -125,10 +142,77 @@ public class UserController{
 			return mView;
 		}
 	}
-	
-	
-	
-	   //for Learning purpose of model
+
+	@GetMapping("/profileDisplay")
+	public String profileDisplay(Model model) {
+		String displayusername,displaypassword,displayemail,displayaddress;
+		try
+		{
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ecommjava","root","hello123");
+			PreparedStatement stmt = con.prepareStatement("select * from CUSTOMER where username = ?"+";");
+			stmt.setString(1, usernameforclass);
+			ResultSet rst = stmt.executeQuery();
+
+			if(rst.next())
+			{
+				int userid = rst.getInt(1);
+
+				displayusername = rst.getString(6);
+				displayemail = rst.getString(3);
+				displaypassword = rst.getString(4);
+				displayaddress = rst.getString(2);
+				System.out.println("Hello user "+displayusername+" "+displayemail+" "+displaypassword+" "+displayaddress);
+				model.addAttribute("userid",userid);
+				model.addAttribute("username",displayusername);
+				model.addAttribute("email",displayemail);
+				model.addAttribute("password",displaypassword);
+				model.addAttribute("address",displayaddress);
+			}
+		}
+		catch(Exception e)
+		{
+			System.out.println("Exception:"+e);
+		}
+		System.out.println("Hello");
+		return "profile";
+	}
+
+	@RequestMapping(value = "updateuser",method=RequestMethod.POST)
+	public ModelAndView updateUserProfile(@RequestParam("userid") String userid,@RequestParam("username") String username, @RequestParam("email") String email, @RequestParam("password") String password, @RequestParam("address") String address)
+
+	{
+		try
+		{
+			//System.out.println(username+" "+email+" "+password+" "+address+" "+useridforclass);
+
+			Class.forName("com.mysql.cj.jdbc.Driver");
+			Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ecommjava","root","hello123");
+
+			PreparedStatement pst = con.prepareStatement("update CUSTOMER set username= ?,email = ?,password= ?, address= ? where id = ?;");
+			System.out.println(username+" "+email+" "+password+" "+address+" "+userid);
+			pst.setString(1, username);
+			pst.setString(2, email);
+			pst.setString(3, password);
+			pst.setString(4, address);
+			pst.setInt(5, useridforclass);
+			//System.out.println("After setting useridforclass: " + useridforclass);
+			int i = pst.executeUpdate();
+			usernameforclass = username;
+
+		}
+		catch(Exception e)
+		{
+			System.out.println("Exception:"+e);
+		}
+		ModelAndView mv= new ModelAndView("index");
+		return mv;
+	}
+
+
+
+
+	//for Learning purpose of model
 		@GetMapping("/test")
 		public String Test(Model model)
 		{
