@@ -7,7 +7,7 @@
 2. Integrate Database connectivity - using mySQL workbench or dbeaver 
 3. Run the database schema (basedata.sql) to make the tables
 4. Make sure you have database navigator plugins and spring boot enabled
-5. Open pom.xml as a Porject in your intellij
+5. Open pom.xml as a Project in your intellij
 
 # Changes made:
 1. change line 240 to executeQuery() to run the application - admincontroller.java
