@@ -33,7 +33,7 @@ class JtSpringProjectApplicationTests {
 		MockitoAnnotations.openMocks(this);
 	}
 
-	@Test
+	@Test //tests what the app does if the admin is logged in (should redirect to admin home page/dashbaord )
 	void testAdminHome_AdminLoggedIn() {
 		adminController.adminlogcheck=1;
 		when(model.addAttribute("username", "admin")).thenReturn(model); // Assuming admin is the username
@@ -43,7 +43,7 @@ class JtSpringProjectApplicationTests {
 		assertEquals("adminHome", result);
 	}
 
-	@Test
+	@Test //check what the app does if admin is not logged in (it should redirect to login page and not dashboard)
 	void testAdminHome_AdminNotLoggedIn() {
 		adminController.adminlogcheck=0;
 
@@ -54,6 +54,7 @@ class JtSpringProjectApplicationTests {
 
 	@Test
 	void testReturnIndex() {
+		//checks logout feature on the basis of the return string of the returnIndex() method
 		String result = adminController.returnIndex();
 		assertEquals("userLogin", result);
 	}
