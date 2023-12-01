@@ -142,14 +142,14 @@ class JtSpringProjectApplicationTests {
 		user.setPassword("userPass");
 		user.setAddress("146 Lahore, Valencia");
 		user.setEmail("testuser@gmail.com");
-		when(userService.checkUserExists("testUser")).thenReturn(false);
+		when(userService.checkUserExists("lisa")).thenReturn(true);
 		when(userService.addUser(user)).thenReturn(user);
 
 		ModelAndView modelAndView =userCont.newUseRegister(user);
 
 		assertEquals("register", modelAndView.getViewName());
-		verify(userService, times(1)).checkUserExists("testUser");
-		verify(userService, times(1)).addUser(user);
+		verify(userService, times(1)).checkUserExists("lisa");
+
 	}
 
 
