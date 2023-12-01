@@ -1,9 +1,12 @@
 package com.jtspringproject.JtSpringProject;
 
 import com.jtspringproject.JtSpringProject.controller.AdminController;
+import com.jtspringproject.JtSpringProject.controller.UserController;
 import com.jtspringproject.JtSpringProject.dao.productDao;
 import com.jtspringproject.JtSpringProject.models.Category;
 import com.jtspringproject.JtSpringProject.models.Product;
+import com.jtspringproject.JtSpringProject.models.User;
+import com.jtspringproject.JtSpringProject.services.userService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -12,6 +15,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.ui.Model;
+import org.springframework.web.servlet.ModelAndView;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
@@ -25,8 +29,13 @@ class JtSpringProjectApplicationTests {
 	@Mock
 	private Model model;
 
+	@Mock
+	private userService userService; // Assuming UserService is your actual service class
+
 	@InjectMocks
 	private AdminController adminController;
+
+
 
 	@BeforeEach
 	void setUp() {
@@ -64,6 +73,43 @@ class JtSpringProjectApplicationTests {
 
 		assertEquals("adminlogin", result);
 	}
+	@Test  //testing login feature in case of success
+	void AdminLoginSuccess() {
+		String username = "admin";
+		String password = "password";
 
+		User user = new User();
+		user.setUsername(username);
+		user.setPassword(password);
+		user.setRole("ROLE_ADMIN");
 
+		when(userService.checkLogin(username, password)).thenReturn(user);
+
+		ModelAndView modelAndView = adminController.adminlogin(username, password);
+
+		assertEquals("adminHome", modelAndView.getViewName());
+		assertEquals(user, modelAndView.getModel().get("admin"));
+		assertEquals(1, adminController.adminlogcheck);
+	}
+
+	@Test //testing login feature in case of failure
+	void AdminLoginFailure() {
+		String username = "user";
+		String password = "incorrectPass";
+
+		User user = new User();
+		user.setUsername(username);
+		user.setPassword(password);
+		user.setRole("ROLE_USER");
+
+		when(userService.checkLogin(username, password)).thenReturn(user);
+
+		ModelAndView modelAndView = adminController.adminlogin(username, password);
+
+		assertEquals("adminlogin", modelAndView.getViewName());
+		assertEquals("Please enter correct username and password", modelAndView.getModel().get("msg"));
+		assertEquals(0, adminController.adminlogcheck);
+	}
 }
+
+
