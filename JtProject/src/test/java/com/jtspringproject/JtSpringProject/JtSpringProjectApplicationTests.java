@@ -3,6 +3,7 @@ package com.jtspringproject.JtSpringProject;
 import com.jtspringproject.JtSpringProject.controller.AdminController;
 import com.jtspringproject.JtSpringProject.controller.UserController;
 import com.jtspringproject.JtSpringProject.dao.productDao;
+import com.jtspringproject.JtSpringProject.dao.userDao;
 import com.jtspringproject.JtSpringProject.models.Category;
 import com.jtspringproject.JtSpringProject.models.Product;
 import com.jtspringproject.JtSpringProject.models.User;
@@ -18,7 +19,8 @@ import org.springframework.ui.Model;
 import org.springframework.web.servlet.ModelAndView;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 class JtSpringProjectApplicationTests {
@@ -28,6 +30,9 @@ class JtSpringProjectApplicationTests {
 	}*/
 	@Mock
 	private Model model;
+	@Mock
+	private userDao DAOaccess;
+
 
 	@Mock
 	private userService userService; // Assuming UserService is your actual service class
@@ -35,6 +40,8 @@ class JtSpringProjectApplicationTests {
 	@InjectMocks
 	private AdminController adminController;
 
+	@InjectMocks
+	private UserController userCont;
 
 
 	@BeforeEach
@@ -62,7 +69,7 @@ class JtSpringProjectApplicationTests {
 	}
 
 	@Test
-	void testReturnIndex() {
+	void testUserLogout() {
 		//checks logout feature on the basis of the return string of the returnIndex() method
 		String result = adminController.returnIndex();
 		assertEquals("userLogin", result);
@@ -110,6 +117,28 @@ class JtSpringProjectApplicationTests {
 		assertEquals("Please enter correct username and password", modelAndView.getModel().get("msg"));
 		assertEquals(0, adminController.adminlogcheck);
 	}
+
+	@Test
+	void testNewUserRegisterSuccess() {
+		User user = new User();
+		user.setUsername("testUser");
+		user.setPassword("userPass");
+		user.setAddress("146 Lahore, Valencia");
+		user.setEmail("testuser@gmail.com");
+		when(userService.checkUserExists("testUser")).thenReturn(false);
+		when(userService.addUser(user)).thenReturn(user);
+
+		ModelAndView modelAndView =userCont.newUseRegister(user);
+
+		assertEquals("userLogin", modelAndView.getViewName());
+		verify(userService, times(1)).checkUserExists("testUser");
+		verify(userService, times(1)).addUser(user);
+	}
+
+
+
+
+
 }
 
 
