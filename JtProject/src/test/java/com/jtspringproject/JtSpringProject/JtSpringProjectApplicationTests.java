@@ -58,4 +58,12 @@ class JtSpringProjectApplicationTests {
 		String result = adminController.returnIndex();
 		assertEquals("userLogin", result);
 	}
+	@Test
+	void testAdminLogin() {
+		String result = adminController.adminlogin();
+
+		assertEquals("adminlogin", result);
+	}
+
+
 }
