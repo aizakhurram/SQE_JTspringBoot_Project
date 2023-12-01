@@ -135,7 +135,22 @@ class JtSpringProjectApplicationTests {
 		verify(userService, times(1)).addUser(user);
 	}
 
+	@Test //tests to make sure that a user with the same name as an existing user is not being registered
+	void testRegisterRedundantUser() {
+		User user = new User();
+		user.setUsername("lisa");
+		user.setPassword("userPass");
+		user.setAddress("146 Lahore, Valencia");
+		user.setEmail("testuser@gmail.com");
+		when(userService.checkUserExists("testUser")).thenReturn(false);
+		when(userService.addUser(user)).thenReturn(user);
 
+		ModelAndView modelAndView =userCont.newUseRegister(user);
+
+		assertEquals("register", modelAndView.getViewName());
+		verify(userService, times(1)).checkUserExists("testUser");
+		verify(userService, times(1)).addUser(user);
+	}
 
 
 
