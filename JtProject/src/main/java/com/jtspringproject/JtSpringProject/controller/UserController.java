@@ -33,7 +33,7 @@ import com.jtspringproject.JtSpringProject.services.cartService;
 public class UserController{
 	
 	@Autowired
-	private userService userService;
+	public userService userService;
 
 	@Autowired
 	private productService productService;
@@ -149,7 +149,7 @@ public class UserController{
 		try
 		{
 			Class.forName("com.mysql.cj.jdbc.Driver");
-			Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ecommjava","root","hello123");
+			Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ecommjava","root","zodiac");
 			PreparedStatement stmt = con.prepareStatement("select * from CUSTOMER where username = ?"+";");
 			stmt.setString(1, usernameforclass);
 			ResultSet rst = stmt.executeQuery();
