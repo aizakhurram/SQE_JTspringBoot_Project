@@ -57,22 +57,19 @@
 				<th scope="col">Delete</th>
 			</tr>
 			<tbody>
-				<c:forEach var="customer" items="${customers }">
+			<c:forEach var="customer" items="${customers}">
 				<tr>
+					<td>${customer.username}</td>
+					<td>${customer.email}</td>
+					<td>${customer.address}</td>
 					<td>
-						${customer.username}
+						<form action="/admin/customers/delete" method="post">
+							<input type="hidden" name="usernamee" value="${customer.username}">
+							<button class="btn btn-danger" onclick="deleteCustomer('${customer.username}')">Delete</button>
+						</form>
 					</td>
-					<td>
-					    ${customer.email}
-						
-					</td>
-					<td>
-					    ${customer.address}
-						
-				    </td>
-					</tr>
-                </c:forEach>
-
+				</tr>
+			</c:forEach>
 
 				
 			</tbody>
