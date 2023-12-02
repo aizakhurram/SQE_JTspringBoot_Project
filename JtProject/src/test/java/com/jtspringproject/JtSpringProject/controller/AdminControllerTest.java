@@ -13,7 +13,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.servlet.ModelAndView;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 class AdminControllerTest {
@@ -23,6 +23,8 @@ class AdminControllerTest {
     private AdminController adminController;
     @Mock
     private com.jtspringproject.JtSpringProject.services.userService userService;
+    @Mock
+    private com.jtspringproject.JtSpringProject.services.categoryService categoryS;
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
@@ -89,7 +91,22 @@ class AdminControllerTest {
         assertEquals(0, adminController.adminlogcheck);
     }
 
-    @AfterEach
-    void tearDown() {
+    @Test
+    public void testDeleteCategory_success() {
+
+        int categoryId = 123;
+        when(categoryS.deleteCategory(categoryId)).thenReturn(true);
+
+
+        String result = adminController.removeCategoryDb(categoryId);
+
+        // Verify that the deleteCategory method was called with the correct ID
+        verify(categoryS, times(1)).deleteCategory(categoryId);
+        //success scenario
+       // if (categoryS.deleteCategory(categoryId))
+            assertEquals("redirect:/admin/categories", result);
+
     }
+
+
 }
