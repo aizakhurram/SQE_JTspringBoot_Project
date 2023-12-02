@@ -222,8 +222,34 @@ public class AdminController {
 			return mView;
 		}
 	}
-	
-	
+
+	// delete button for customer/user
+	@RequestMapping(value = "customers/delete", method = RequestMethod.POST)
+	public String deleteCustomer(@RequestParam("usernamee") String username) {
+		System.out.println("customer name= " + username);
+		try {
+			//change password for your database in AdminController.java line #231
+			Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ecommjava","root","");
+			String deleteQuery = "DELETE FROM customer WHERE username = ?";
+			PreparedStatement stmt = con.prepareStatement(deleteQuery);
+			stmt.setString(1, username);
+			int rowsAffected = stmt.executeUpdate();
+
+			if (rowsAffected > 0) {
+				System.out.println("Customer deleted successfully");
+			} else {
+				System.out.println("No customer found with the given username");
+			}
+
+		} catch (Exception e) {
+			System.out.println("Exception:" + e);
+		}
+
+		return "redirect:/admin/customers";
+	}
+
+
+
 	@GetMapping("profileDisplay")
 	public String profileDisplay(Model model) {
 		String displayusername,displaypassword,displayemail,displayaddress;
