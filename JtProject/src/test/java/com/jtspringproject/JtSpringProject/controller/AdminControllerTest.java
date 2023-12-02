@@ -11,6 +11,9 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.ModelAndView;
+import java.sql.*;
+
+import java.sql.Connection;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -19,6 +22,15 @@ import static org.mockito.Mockito.*;
 class AdminControllerTest {
     @Mock
     private Model model;
+    @Mock
+    Connection mockCon;
+
+    @Mock
+    PreparedStatement mockStmt;
+
+    @Mock
+    private UserController userCon;
+
     @InjectMocks
     private AdminController adminController;
     @Mock
@@ -108,5 +120,42 @@ class AdminControllerTest {
 
     }
 
+    @Test
+    public void testDeleteCustomer_Success() throws SQLException {
+        Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ecommjava","root","zodiac");
+        String insertQuery = "INSERT INTO ecommjava.customer ( address, email, password, role, username) VALUES (\"146, Haven\", \"email@wtv\", 456, \"ROLE_NORMAL\", \"testUser\")";
+        PreparedStatement stmt = con.prepareStatement(insertQuery);
+        when(mockCon.prepareStatement(anyString())).thenReturn(mockStmt);
+        when(mockStmt.executeUpdate()).thenReturn(1); // Simulating a successful deletion
+        String result = adminController.deleteCustomer("testUser");
 
+        assertEquals("redirect:/admin/customers", result);
+
+    }
+
+    @Test
+    public void testDeleteCustomer_InvalidCust() throws SQLException {
+        String username = "nonExistingUser";
+
+        when(mockCon.prepareStatement(anyString())).thenReturn(mockStmt);
+        when(mockStmt.executeUpdate()).thenReturn(0); // Simulating no customer found
+
+        String result = adminController.deleteCustomer(username);
+
+        assertEquals("redirect:/admin/customers", result);
+
+    }
+
+    @Test //should throw exception
+    public void testDeleteCustomer_Failure() throws SQLException {
+        String username = "testUser";
+
+        when(mockCon.prepareStatement(anyString())).thenThrow(SQLException.class);
+
+        String result = adminController.deleteCustomer(username);
+
+        assertEquals("redirect:/admin/customers", result); // Or handle the exception case as needed
+        verify(mockStmt, never()).setString(1, username);
+        verify(mockStmt, never()).executeUpdate();
+    }
 }
