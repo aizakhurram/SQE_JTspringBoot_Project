@@ -15,6 +15,12 @@
 3. Line 234 username class was changed to remove errors -admincontroller.java
 4. Removed "NO_AUTO_CREATE_USER" from the first line in basedata.sql
 
+# How to run the tests using command:
+1. Install mvn if it is not installed in your device (to check this you can open command prompt and run "mvn -v")
+2. If mvn is istalled in your device, then open the terminal/command prompt you project directory
+3. Write "mvn test" and run this on terminal
+4. All the test cases that are present in test folder in project will be executed and result will be displayed on the console.
+
 # Group Members:
 1. Aiza Khurram  21L-5771
 2. Minaal Khurram 21L-5828
