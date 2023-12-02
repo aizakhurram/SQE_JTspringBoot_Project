@@ -24,6 +24,5 @@
 # Group Members:
 1. Aiza Khurram  21L-5771
 2. Minaal Khurram 21L-5828
-3. Tayyab Nadeem  21L-5830
 4. Aaon Raza  21L-6055
-   
+3. Tayyab Nadeem  21L-5830
