@@ -17,8 +17,8 @@
 
 # How to run the tests using command:
 1. Install mvn if it is not installed in your device (to check this you can open command prompt and run "mvn -v")
-2. If mvn is istalled in your device, then open the terminal/command prompt you project directory
-3. Write "mvn test" and run this on terminal
+2. If mvn is istalled in your device, then open the terminal/command prompt in your project directory
+3. Write "mvn test" and run this on terminal/command prompt
 4. All the test cases that are present in test folder in project will be executed and result will be displayed on the console.
 
 # Group Members:
