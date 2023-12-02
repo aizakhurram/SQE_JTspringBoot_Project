@@ -11,6 +11,11 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.ModelAndView;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.Mockito.times;
@@ -22,6 +27,14 @@ class UserControllerTest {
     @Mock
     private userDao DAOaccess;
 
+    @Mock
+    private Connection mockConnection;
+
+    @Mock
+    private PreparedStatement mockStatement;
+
+    @Mock
+    private ResultSet mockResultSet;
 
     @Mock
     private com.jtspringproject.JtSpringProject.services.userService userService; // Assuming UserService is your actual service class
@@ -52,6 +65,7 @@ class UserControllerTest {
     @Test
     void testNewUserRegisterSuccess() {
         User user = new User();
+
         user.setUsername("testUser");
         user.setPassword("userPass");
         user.setAddress("146 Lahore, Valencia");
@@ -82,4 +96,18 @@ class UserControllerTest {
         verify(userService, times(1)).checkUserExists("lisa");
 
     }
+
+    @Test
+    void testProfileDisplay_success() throws Exception {
+        String usernameForClass = "lisa";
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ecommjava","root","zodiac");
+        PreparedStatement stmt = con.prepareStatement("select * from CUSTOMER where username = ?"+";");
+        stmt.setString(1, usernameForClass);
+        ResultSet rst = stmt.executeQuery();
+            String viewName = userCont.profileDisplay(model);
+        assertEquals("profile", viewName);
+    }
+
+
 }
