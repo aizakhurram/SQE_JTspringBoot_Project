@@ -78,7 +78,7 @@ public class UserController{
 		System.out.println(pass);
 		User u = this.userService.checkLogin(username, pass);
 		System.out.println(u.getUsername());
-		if(u.getUsername().equals(username)) {	
+		if(u.getRole() != null) {	
 			if (u.getUsername().equals("admin")){
 				return new ModelAndView("redirect:/admin/login");
 			}
