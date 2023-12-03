@@ -140,6 +140,17 @@ class UserControllerTest {
         }
     }
      @Test
+    void testProfileDisplay() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/profileDisplay");
+        MockMvcBuilders.standaloneSetup(userCont)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("profile"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("profile"));
+    }
+     @Test
     void testDeleteCartItem() throws Exception {
         MockHttpServletRequestBuilder postResult = MockMvcRequestBuilders.post("/deleteCartItem");
         MockHttpServletRequestBuilder requestBuilder = postResult.param("id", String.valueOf(1));
@@ -208,6 +219,7 @@ class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.view().name("cartproduct"))
                 .andExpect(MockMvcResultMatchers.forwardedUrl("cartproduct"));
     }
+    
 
 
 }
