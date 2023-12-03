@@ -206,6 +206,11 @@ class AdminControllerTest {
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/categories", new Object[0]);
         MockMvcBuilders.standaloneSetup(new Object[]{this.adminController}).build().perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.model().size(0)).andExpect(MockMvcResultMatchers.view().name("adminlogin")).andExpect(MockMvcResultMatchers.forwardedUrl("adminlogin"));
     }
+     @Test
+    void testGetproduct() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/products", new Object[0]);
+        MockMvcBuilders.standaloneSetup(new Object[]{this.adminController}).build().perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.model().size(0)).andExpect(MockMvcResultMatchers.view().name("adminlogin")).andExpect(MockMvcResultMatchers.forwardedUrl("adminlogin"));
+    }
 
 
 
