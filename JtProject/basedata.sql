@@ -51,6 +51,19 @@ CREATE TABLE IF NOT EXISTS PRODUCT (
     customer_id INT
 );
 
+-- create the product_cart table which will contain products added to cart
+CREATE TABLE IF NOT EXISTS Product_cart (
+    product_id INT AUTO_INCREMENT PRIMARY KEY,
+    description VARCHAR(255),
+    image VARCHAR(255),
+    name VARCHAR(255),
+    price INT,
+    quantity INT,
+    weight INT,
+    category_id INT,
+    customer_id INT
+);
+
 -- insert default products
 INSERT INTO PRODUCT (description, image, name, price, quantity, weight, category_id) VALUES
     ('Fresh and juicy', 'https://freepngimg.com/save/9557-apple-fruit-transparent/744x744', 'Apple', 3, 40, 76, 1),

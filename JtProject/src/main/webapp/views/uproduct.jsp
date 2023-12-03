@@ -34,8 +34,9 @@
 			<div class="collapse navbar-collapse" id="navbarSupportedContent">
 				<ul class="navbar-nav mr-auto"></ul>
 				<ul class="navbar-nav">
-					<li class="nav-item active"><a class="nav-link" href="/adminhome">Home
-							Page</a></li>
+					<li class="nav-item active">
+					<a class="nav-link" href="/index">Home Page</a>
+				</li>
 					<li class="nav-item active"><a class="nav-link" href="/logout">Logout</a>
 					</li>
 
@@ -98,10 +99,10 @@
 					<td>
 
 
-				    <form action="products/addtocart" method="get">
-							<input type="hidden" name="id" value="${product.id}">
-							<input type="submit" value="Add To Cart" class="btn btn-warning">
-					</form>
+						<form action="/addToCart" method="post">
+							<input type="hidden" name="product_id" value="${product.id}">
+							<button class="btn btn-danger" type="submit">Add to Cart</button>
+						</form>
 					</td>
 
 

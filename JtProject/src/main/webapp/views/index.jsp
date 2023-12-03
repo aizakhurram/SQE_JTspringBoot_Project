@@ -39,9 +39,10 @@
             <ul class="navbar-nav mr-auto"></ul>
             <ul class="navbar-nav">
                 <li class="nav-item active">
-                    <a class="nav-link" th:href="@{/}" href="#">CART</a>
+                    <a class="nav-link" th:href="@{/cartproduct}" href="cartproduct">CART</a>
                 </li>
-                 <li class="nav-item active">
+
+                <li class="nav-item active">
                     <a class="nav-link" href="profileDisplay" >Profile</a>
                 </li>
                 <li class="nav-item active">
@@ -53,7 +54,17 @@
         </div>
     </div>
 </nav>
-<!DOCTYPE html>
+        <!-- Add this script to index.jsp -->
+        <script>
+            var cartProducts = [];  // Array to store product IDs
+
+            function addToCart(productId) {
+                cartProducts.push(productId);
+                alert('Product added to cart!');
+            }
+        </script>
+
+            <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -95,7 +106,12 @@
               <h5 class="card-text">Category: ${product.category.name}</h5>
               <h5 class="card-text">Price: ${product.price}</h5>
               <p class="card-text">Description: ${product.description}</p>
-              <a href="#" class="btn btn-primary">Add to Cart</a>
+                <form action="index" method="post">
+                    <input type="hidden" name="product_id" value="${product.id}">
+                    <button class="btn btn-danger" type="submit">Add to Cart</button>
+                </form>
+
+
             </div>
           </div>
         </div> </c:forEach>

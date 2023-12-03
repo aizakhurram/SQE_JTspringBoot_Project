@@ -38,6 +38,7 @@ public class UserController{
 	@Autowired
 	private productService productService;
 	String usernameforclass = "";
+	String passforclass = "";
 	int useridforclass;
 	@GetMapping("/register")
 	public String registerUser()
@@ -49,12 +50,23 @@ public class UserController{
 		return "updateProfile";
 	}
 	@GetMapping("/index")
-	public String index(Model model) {
+	public ModelAndView index(Model model) {
 		if (usernameforclass == null || usernameforclass.isEmpty()) {
-			return "userLogin";
+			ModelAndView mView  = new ModelAndView("userLogin");
+			return mView;
 		} else {
+			User u = this.userService.checkLogin(usernameforclass, passforclass);
 			model.addAttribute("username", usernameforclass);
-			return "index";
+			ModelAndView mView  = new ModelAndView("index");
+			mView.addObject("user", u);
+			List<Product> products = this.productService.getProducts();
+			if (products.isEmpty()) {
+				mView.addObject("msg", "No products are available");
+			} else {
+				mView.addObject("products", products);
+			}
+
+			return mView;
 		}
 	}
 	@GetMapping("/buy")
@@ -63,7 +75,15 @@ public class UserController{
 		return "buy";
 	}
 	@RequestMapping(value = {"/","/logout"})
-	public String returnIndex() {
+	public String returnIndex() throws SQLException {
+		//change password to your own database password
+		Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ecommjava", "root", "tayyab3037");
+		String deleteProductCartQuery = "DELETE FROM Product_cart";
+
+		try (PreparedStatement deleteStmt = con.prepareStatement(deleteProductCartQuery)) {
+			// Execute the delete statement
+			int rowsAffected = deleteStmt.executeUpdate();
+		}
 		return "userLogin";
 	}
 
@@ -78,12 +98,12 @@ public class UserController{
 		System.out.println(pass);
 		User u = this.userService.checkLogin(username, pass);
 		System.out.println(u.getUsername());
-		if(u.getUsername().equals(username)) {	
+		if(u.getRole() != null) {	
 			if (u.getUsername().equals("admin")){
 				return new ModelAndView("redirect:/admin/login");
 			}
 			res.addCookie(new Cookie("username", u.getUsername()));
-
+                        passforclass=u.getPassword();
 			usernameforclass=u.getUsername();
 			useridforclass=u.getId();
 
@@ -249,12 +269,162 @@ public class UserController{
 			
 		}
 
+	//Add to Cart Button 
+		@RequestMapping(value = "index", method = RequestMethod.POST)
+	public String addToCart(@RequestParam("product_id") String productId) {
+		System.out.println("Product ID added to cart: " + productId);
 
-//	@GetMapping("carts")
-//	public ModelAndView  getCartDetail()
-//	{
-//		ModelAndView mv= new ModelAndView();
-//		List<Cart>carts = cartService.getCarts();
-//	}
+		try {
+			// Change password to your own database password
+			Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ecommjava", "root", "tayyab3037");
+			PreparedStatement stmt = con.prepareStatement("SELECT * FROM product WHERE product_id = ?");
+
+			stmt.setString(1, productId);
+			ResultSet rst = stmt.executeQuery();
+
+			// Data retreival
+			if (rst.next()) {
+				int productIdFromDB = rst.getInt("product_id");
+				String productName = rst.getString("name");
+				String description = rst.getString("description");
+				double price = rst.getDouble("price");
+				String imageFromDB = rst.getString("image");
+				int quantityFromDB = rst.getInt("quantity");
+				int weightFromDB = rst.getInt("weight");
+				int categoryIdFromDB = rst.getInt("category_id");
+				int customerIdFromDB = rst.getInt("customer_id");
+
+
+				System.out.println("Product ID: " + productIdFromDB);
+				System.out.println("Product Name: " + productName);
+				System.out.println("Description: " + description);
+				System.out.println("Price: " + price);
+
+				// Data insertion
+				String insertQuery = "INSERT INTO Product_cart (product_id, description, name, price, image, quantity, weight, category_id, customer_id) " +
+						"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+				try (PreparedStatement insertStmt = con.prepareStatement(insertQuery)) {
+					insertStmt.setInt(1, productIdFromDB);
+					insertStmt.setString(2, description);
+					insertStmt.setString(3, productName);
+					insertStmt.setDouble(4, price);
+					insertStmt.setString(5, imageFromDB);
+					insertStmt.setInt(6, quantityFromDB);
+					insertStmt.setInt(7, weightFromDB);
+					insertStmt.setInt(8, categoryIdFromDB);
+					insertStmt.setInt(9, customerIdFromDB);
+
+					// Execute the insert statement
+					int rowsAffected = insertStmt.executeUpdate();
+
+
+				} catch (SQLException ex) {
+					throw new RuntimeException(ex);
+				}
+			}
+			
+
+		} catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        return "cartproduct";
+		}
+
+	//Delete Button implementation on cartproduct.jsp page
+		@PostMapping("/deleteCartItem")
+		public String deleteCartItem(@RequestParam("id") int cartItemId) {
+			try {
+				//Change password to your own database password
+				Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ecommjava","root","tayyab3037");
+				String deleteQuery = "DELETE FROM product_cart WHERE product_id = ?";
+				PreparedStatement stmt = con.prepareStatement(deleteQuery);
+				stmt.setInt(1, cartItemId);
+				int rowsAffected = stmt.executeUpdate();
+				System.out.println("Item deleted from cart. Cart Item ID: " + cartItemId);
+
+				// Redirect back to the cartproduct page
+				return "redirect:/cartproduct";
+			} catch (Exception e) {
+				
+				System.out.println("Error deleting item from cart: " + e.getMessage());
+				return "redirect:/cartproduct"; // Redirect back to the cartproduct page in case of an error
+			}
+		}
+
+	
+	// Add to Cart Button implementation on uproduct.jsp Page
+	@PostMapping("/addToCart")
+	public String addToCart(@RequestParam("product_id") int productId) {
+		System.out.println("Product ID added to cart: " + productId);
+		try {
+			//Change password to your own database password
+			Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ecommjava", "root", "tayyab3037");
+			PreparedStatement stmt = con.prepareStatement("SELECT * FROM product WHERE product_id = ?");
+
+			stmt.setInt(1, productId);
+			ResultSet rst = stmt.executeQuery();
+
+			//Data Retreival
+			if (rst.next()) {
+				int productIdFromDB = rst.getInt("product_id");
+				String productName = rst.getString("name");
+				String description = rst.getString("description");
+				double price = rst.getDouble("price");
+				String imageFromDB = rst.getString("image");
+				int quantityFromDB = rst.getInt("quantity");
+				int weightFromDB = rst.getInt("weight");
+				int categoryIdFromDB = rst.getInt("category_id");
+				int customerIdFromDB = rst.getInt("customer_id");
+
+
+				System.out.println("Product ID: " + productIdFromDB);
+				System.out.println("Product Name: " + productName);
+				System.out.println("Description: " + description);
+				System.out.println("Price: " + price);
+
+				// Now you can use the retrieved data to insert into the 'product_cart' table
+				String insertQuery = "INSERT INTO Product_cart (product_id, description, name, price, image, quantity, weight, category_id, customer_id) " +
+						"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+				try (PreparedStatement insertStmt = con.prepareStatement(insertQuery)) {
+					insertStmt.setInt(1, productIdFromDB);
+					insertStmt.setString(2, description);
+					insertStmt.setString(3, productName);
+					insertStmt.setDouble(4, price);
+					insertStmt.setString(5, imageFromDB);
+					insertStmt.setInt(6, quantityFromDB);
+					insertStmt.setInt(7, weightFromDB);
+					insertStmt.setInt(8, categoryIdFromDB);
+					insertStmt.setInt(9, customerIdFromDB);
+
+					// Execute the insert statement
+					int rowsAffected = insertStmt.executeUpdate();
+
+
+				} catch (SQLException ex) {
+					throw new RuntimeException(ex);
+				}
+			}
+			// Add your logic to store the product information, maybe in a session or database table
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+			return "redirect:/index"; // Redirect to the index page or any other page
+
+	}
+
+	@GetMapping("/cart")
+	public String viewCart(Model model) {
+
+		return "cartproduct";
+	}
+
+	@GetMapping("/cartproduct")
+	public String viewCartProduct() {
+		return "cartproduct";
+	}
+
 	  
 }
