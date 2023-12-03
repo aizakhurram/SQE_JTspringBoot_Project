@@ -63,7 +63,15 @@ public class UserController{
 		return "buy";
 	}
 	@RequestMapping(value = {"/","/logout"})
-	public String returnIndex() {
+	public String returnIndex() throws SQLException {
+		//change password to your own database password
+		Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ecommjava", "root", "tayyab3037");
+		String deleteProductCartQuery = "DELETE FROM Product_cart";
+
+		try (PreparedStatement deleteStmt = con.prepareStatement(deleteProductCartQuery)) {
+			// Execute the delete statement
+			int rowsAffected = deleteStmt.executeUpdate();
+		}
 		return "userLogin";
 	}
 
@@ -248,6 +256,29 @@ public class UserController{
 			
 			
 		}
+	
+
+
+	@GetMapping("/cart")
+	public String viewCart(Model model) {
+		// Fetch products by IDs from the cartProductIds list
+
+
+		// Add the cartProducts to the model
+
+
+		// Return the cartproduct.jsp page
+		return "cartproduct";
+	}
+
+
+
+
+
+	@GetMapping("/cartproduct")
+	public String viewCartProduct() {
+		return "cartproduct";
+	}
 
 
 //	@GetMapping("carts")
