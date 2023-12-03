@@ -220,6 +220,21 @@ class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.forwardedUrl("cartproduct"));
     }
     
-
+ @Test
+    void testUpdateUserProfile() throws Exception {
+        MockHttpServletRequestBuilder paramResult = MockMvcRequestBuilders.post("/admin/updateuser")
+                .param("address", "add")
+                .param("email", "em")
+                .param("password", "pass");
+        MockHttpServletRequestBuilder requestBuilder = paramResult.param("userid", String.valueOf(1))
+                .param("username", "user");
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isFound())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("redirect:/index"))
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/index"));
+    }
 
 }
