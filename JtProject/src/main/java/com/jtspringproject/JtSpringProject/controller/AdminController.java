@@ -177,9 +177,10 @@ public class AdminController {
 		return "redirect:/admin/products";
 	}
 
-	@GetMapping("products/update/{id}")
-	public ModelAndView updateproduct(@PathVariable("id") int id) {
-		
+		@GetMapping("products/update/{id}")
+	@ResponseBody
+	public ModelAndView updateproduct(@PathVariable int id) {
+
 		ModelAndView mView = new ModelAndView("productsUpdate");
 		Product product = this.productService.getProduct(id);
 		List<Category> categories = this.categoryService.getCategories();
@@ -188,12 +189,37 @@ public class AdminController {
 		mView.addObject("product", product);
 		return mView;
 	}
+
 	
-	@RequestMapping(value = "products/update/{id}",method=RequestMethod.POST)
-	public String updateProduct(@PathVariable("id") int id ,@RequestParam("name") String name,@RequestParam("categoryid") int categoryId ,@RequestParam("price") int price,@RequestParam("weight") int weight, @RequestParam("quantity")int quantity,@RequestParam("description") String description,@RequestParam("productImage") String productImage)
+//
+//, @ModelAttribute("product") Product product
+	@PostMapping (value = "products/updated/{id}")
+	public String updateProduct(@PathVariable("id") int id, @RequestParam("name") String name,@RequestParam("categoryid") int categoryId ,@RequestParam("price") int price,@RequestParam("weight") int weight, @RequestParam("quantity")int quantity,@RequestParam("description") String description,@RequestParam("productImage") String productImage)
 	{
 
-//		this.productService.updateProduct();
+		
+		System.out.println(categoryId);
+		Category category = this.categoryService.getCategory(categoryId);
+		Product prod = this.productService.getProduct(id);
+
+		prod.setId(id);
+		prod.setName(name);
+		prod.setCategory(category);
+		prod.setDescription(description);
+		prod.setPrice(price);
+		prod.setImage(productImage);
+		prod.setWeight(weight);
+		prod.setQuantity(quantity);
+
+		try {
+			this.productService.updateProduct(id, prod); // Update the product
+		
+		} catch (Exception ex) {
+			ex.printStackTrace(); // Log any exceptions
+			// Handle exception or return an error view/page
+//			return "errorPage"; // Redirect to an error page if an exception occurs
+		}
+
 		return "redirect:/admin/products";
 	}
 	
