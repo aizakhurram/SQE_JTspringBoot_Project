@@ -135,6 +135,19 @@ class UserControllerTest {
             e.printStackTrace();
         }
     }
+     @Test
+    void testDeleteCartItem() throws Exception {
+        MockHttpServletRequestBuilder postResult = MockMvcRequestBuilders.post("/deleteCartItem");
+        MockHttpServletRequestBuilder requestBuilder = postResult.param("id", String.valueOf(1));
+        MockMvcBuilders.standaloneSetup(userCont)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isFound())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("redirect:/cartproduct"))
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/cartproduct"));
+    }
+
 
 
 }
