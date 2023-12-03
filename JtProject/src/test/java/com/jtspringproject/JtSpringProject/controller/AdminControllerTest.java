@@ -223,6 +223,17 @@ class AdminControllerTest {
         MockHttpServletRequestBuilder requestBuilder = getResult.param("id", new String[]{String.valueOf(1)});
         MockMvcBuilders.standaloneSetup(new Object[]{this.adminController}).build().perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isFound()).andExpect(MockMvcResultMatchers.model().size(0)).andExpect(MockMvcResultMatchers.view().name("redirect:/admin/products")).andExpect(MockMvcResultMatchers.redirectedUrl("/admin/products"));
     }
+     @Test
+    void testReturnIndex() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/");
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("adminlogin"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("adminlogin"));
+    }
 
 
 }
