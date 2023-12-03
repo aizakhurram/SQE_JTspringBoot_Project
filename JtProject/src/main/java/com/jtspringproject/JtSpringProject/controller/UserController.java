@@ -403,34 +403,16 @@ public class UserController{
 
 	}
 
-
 	@GetMapping("/cart")
 	public String viewCart(Model model) {
-		// Fetch products by IDs from the cartProductIds list
 
-
-		// Add the cartProducts to the model
-
-
-		// Return the cartproduct.jsp page
 		return "cartproduct";
 	}
-
-
-
-
 
 	@GetMapping("/cartproduct")
 	public String viewCartProduct() {
 		return "cartproduct";
 	}
 
-
-//	@GetMapping("carts")
-//	public ModelAndView  getCartDetail()
-//	{
-//		ModelAndView mv= new ModelAndView();
-//		List<Cart>carts = cartService.getCarts();
-//	}
 	  
 }
