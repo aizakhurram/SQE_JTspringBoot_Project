@@ -172,4 +172,14 @@ class AdminControllerTest {
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/Dashboard", new Object[0]);
         MockMvcBuilders.standaloneSetup(new Object[]{this.adminController}).build().perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isFound()).andExpect(MockMvcResultMatchers.model().size(0)).andExpect(MockMvcResultMatchers.view().name("redirect:/admin/login")).andExpect(MockMvcResultMatchers.redirectedUrl("/admin/login"));
     }
+    @Test
+    void testUpdateCategory() throws Exception {
+        Category category = new Category();
+        category.setId(1);
+        category.setName("Name");
+        Mockito.when(this.categoryS.updateCategory(Mockito.anyInt(), (String)Mockito.any())).thenReturn(category);
+        MockHttpServletRequestBuilder getResult = MockMvcRequestBuilders.get("/admin/categories/update", new Object[0]);
+        MockHttpServletRequestBuilder requestBuilder = getResult.param("categoryid", new String[]{String.valueOf(1)}).param("categoryname", new String[]{"foo"});
+        MockMvcBuilders.standaloneSetup(new Object[]{this.adminController}).build().perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isFound()).andExpect(MockMvcResultMatchers.model().size(0)).andExpect(MockMvcResultMatchers.view().name("redirect:/admin/categories")).andExpect(MockMvcResultMatchers.redirectedUrl("/admin/categories"));
+    }
 }
