@@ -216,7 +216,13 @@ class AdminControllerTest {
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post("/admin/products", new Object[0]);
         MockMvcBuilders.standaloneSetup(new Object[]{this.adminController}).build().perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isFound()).andExpect(MockMvcResultMatchers.model().size(0)).andExpect(MockMvcResultMatchers.view().name("redirect:/admin/categories")).andExpect(MockMvcResultMatchers.redirectedUrl("/admin/categories"));
     }
-
+    @Test
+    void testRemoveProduct() throws Exception {
+        Mockito.when(this.productS.deleteProduct(Mockito.anyInt())).thenReturn(true);
+        MockHttpServletRequestBuilder getResult = MockMvcRequestBuilders.get("/admin/products/delete", new Object[0]);
+        MockHttpServletRequestBuilder requestBuilder = getResult.param("id", new String[]{String.valueOf(1)});
+        MockMvcBuilders.standaloneSetup(new Object[]{this.adminController}).build().perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isFound()).andExpect(MockMvcResultMatchers.model().size(0)).andExpect(MockMvcResultMatchers.view().name("redirect:/admin/products")).andExpect(MockMvcResultMatchers.redirectedUrl("/admin/products"));
+    }
 
 
 }
