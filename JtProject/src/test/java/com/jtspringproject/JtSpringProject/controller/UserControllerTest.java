@@ -196,6 +196,18 @@ class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.view().name("cartproduct"))
                 .andExpect(MockMvcResultMatchers.forwardedUrl("cartproduct"));
     }
+    @Test
+    void testViewCartSecond() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/cart");
+        requestBuilder.characterEncoding("Encoding");
+        MockMvcBuilders.standaloneSetup(userCont)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("cartproduct"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("cartproduct"));
+    }
 
 
 }
