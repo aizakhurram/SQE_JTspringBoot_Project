@@ -182,4 +182,10 @@ class AdminControllerTest {
         MockHttpServletRequestBuilder requestBuilder = getResult.param("categoryid", new String[]{String.valueOf(1)}).param("categoryname", new String[]{"foo"});
         MockMvcBuilders.standaloneSetup(new Object[]{this.adminController}).build().perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isFound()).andExpect(MockMvcResultMatchers.model().size(0)).andExpect(MockMvcResultMatchers.view().name("redirect:/admin/categories")).andExpect(MockMvcResultMatchers.redirectedUrl("/admin/categories"));
     }
+    @Test
+    void testAddProduct() throws Exception {
+        Mockito.when(this.categoryS.getCategories()).thenReturn(new ArrayList());
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/products/add", new Object[0]);
+        MockMvcBuilders.standaloneSetup(new Object[]{this.adminController}).build().perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.model().size(1)).andExpect(MockMvcResultMatchers.model().attributeExists(new String[]{"categories"})).andExpect(MockMvcResultMatchers.view().name("productsAdd")).andExpect(MockMvcResultMatchers.forwardedUrl("productsAdd"));
+    }
 }
