@@ -38,6 +38,7 @@ public class UserController{
 	@Autowired
 	private productService productService;
 	String usernameforclass = "";
+	String passforclass = "";
 	int useridforclass;
 	@GetMapping("/register")
 	public String registerUser()
@@ -49,12 +50,23 @@ public class UserController{
 		return "updateProfile";
 	}
 	@GetMapping("/index")
-	public String index(Model model) {
+	public ModelAndView index(Model model) {
 		if (usernameforclass == null || usernameforclass.isEmpty()) {
-			return "userLogin";
+			ModelAndView mView  = new ModelAndView("userLogin");
+			return mView;
 		} else {
+			User u = this.userService.checkLogin(usernameforclass, passforclass);
 			model.addAttribute("username", usernameforclass);
-			return "index";
+			ModelAndView mView  = new ModelAndView("index");
+			mView.addObject("user", u);
+			List<Product> products = this.productService.getProducts();
+			if (products.isEmpty()) {
+				mView.addObject("msg", "No products are available");
+			} else {
+				mView.addObject("products", products);
+			}
+
+			return mView;
 		}
 	}
 	@GetMapping("/buy")
@@ -91,7 +103,7 @@ public class UserController{
 				return new ModelAndView("redirect:/admin/login");
 			}
 			res.addCookie(new Cookie("username", u.getUsername()));
-
+                        passforclass=u.getPassword();
 			usernameforclass=u.getUsername();
 			useridforclass=u.getId();
 
