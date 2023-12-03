@@ -35,6 +35,10 @@ class UserControllerTest {
 
     @Mock
     private com.jtspringproject.JtSpringProject.services.userService userService; // Assuming UserService is your actual service class
+     @Mock
+    private com.jtspringproject.JtSpringProject.services.cartService cartS;
+    @Mock
+    private com.jtspringproject.JtSpringProject.services.productService productS;
 
     @InjectMocks
     private AdminController adminController;
@@ -156,6 +160,19 @@ class UserControllerTest {
     void testViewCartProduct() {
 
         assertEquals("cartproduct", (new UserController()).viewCartProduct());
+    }
+     @Test
+    void testGetproduct() throws Exception {
+        when(productS.getProducts()).thenReturn(new ArrayList<>());
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/user/products");
+        MockMvcBuilders.standaloneSetup(userCont)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().size(1))
+                .andExpect(MockMvcResultMatchers.model().attributeExists("msg"))
+                .andExpect(MockMvcResultMatchers.view().name("uproduct"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("uproduct"));
     }
 
 
