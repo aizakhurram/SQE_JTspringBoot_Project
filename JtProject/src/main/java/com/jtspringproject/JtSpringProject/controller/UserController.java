@@ -319,6 +319,26 @@ public class UserController{
         return "cartproduct";
 		}
 
+	//Delete Button implementation on cartproduct.jsp page
+		@PostMapping("/deleteCartItem")
+		public String deleteCartItem(@RequestParam("id") int cartItemId) {
+			try {
+				//Change password to your own database password
+				Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ecommjava","root","tayyab3037");
+				String deleteQuery = "DELETE FROM product_cart WHERE product_id = ?";
+				PreparedStatement stmt = con.prepareStatement(deleteQuery);
+				stmt.setInt(1, cartItemId);
+				int rowsAffected = stmt.executeUpdate();
+				System.out.println("Item deleted from cart. Cart Item ID: " + cartItemId);
+
+				// Redirect back to the cartproduct page
+				return "redirect:/cartproduct";
+			} catch (Exception e) {
+				
+				System.out.println("Error deleting item from cart: " + e.getMessage());
+				return "redirect:/cartproduct"; // Redirect back to the cartproduct page in case of an error
+			}
+		}
 
 
 	@GetMapping("/cart")
