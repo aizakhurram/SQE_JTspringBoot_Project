@@ -35,9 +35,7 @@ class CartTest {
         assertSame(products, actualCart.getProducts());
     }
 
-    /**
-     {@link Cart#addProduct(Product)}
-     */
+  
     @Test
     void testAddProduct() {
         Cart cart = new Cart();
@@ -59,9 +57,6 @@ class CartTest {
         assertEquals(1, cart.getProducts().size());
     }
 
-    /**
-     {@link Cart#removeProduct(Product)}
-     */
     @Test
     void testRemoveProduct() {
         Cart cart = new Cart();
