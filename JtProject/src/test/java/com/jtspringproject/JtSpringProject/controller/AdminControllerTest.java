@@ -196,4 +196,10 @@ class AdminControllerTest {
         requestBuilder.characterEncoding("Encoding");
         MockMvcBuilders.standaloneSetup(new Object[]{this.adminController}).build().perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.model().size(1)).andExpect(MockMvcResultMatchers.model().attributeExists(new String[]{"categories"})).andExpect(MockMvcResultMatchers.view().name("productsAdd")).andExpect(MockMvcResultMatchers.forwardedUrl("productsAdd"));
     }
+    @Test
+    void testGetCustomerDetail() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/customers", new Object[0]);
+        MockMvcBuilders.standaloneSetup(new Object[]{this.adminController}).build().perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.model().size(0)).andExpect(MockMvcResultMatchers.view().name("adminlogin")).andExpect(MockMvcResultMatchers.forwardedUrl("adminlogin"));
+    }
+
 }
