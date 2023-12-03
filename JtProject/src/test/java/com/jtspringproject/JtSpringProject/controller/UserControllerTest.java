@@ -11,10 +11,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.ui.Model;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
+import java.sql.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -38,6 +35,10 @@ class UserControllerTest {
 
     @Mock
     private com.jtspringproject.JtSpringProject.services.userService userService; // Assuming UserService is your actual service class
+     @Mock
+    private com.jtspringproject.JtSpringProject.services.cartService cartS;
+    @Mock
+    private com.jtspringproject.JtSpringProject.services.productService productS;
 
     @InjectMocks
     private AdminController adminController;
@@ -51,14 +52,10 @@ class UserControllerTest {
         MockitoAnnotations.openMocks(this);
     }
 
-
-
-
-
     @Test
-    void testUserLogout() {
+    void testUserLogout() throws SQLException {
         //checks logout feature on the basis of the return string of the returnIndex() method
-        String result = adminController.returnIndex();
+        String result =userCont.returnIndex();
         assertEquals("userLogin", result);
     }
 
@@ -108,6 +105,121 @@ class UserControllerTest {
             String viewName = userCont.profileDisplay(model);
         assertEquals("profile", viewName);
     }
+
+    @Test
+    void testAddToCart() {
+        String productId = "1";
+
+        try {
+            Connection mockConnection = DriverManager.getConnection("jdbc:mysql://localhost:3306/ecommjava", "root", "zodiac");
+            PreparedStatement mockStmt = mockConnection.prepareStatement("SELECT * FROM product WHERE product_id = ?");
+            ResultSet mockResultSet = mock(ResultSet.class);
+
+            when(mockStmt.executeQuery()).thenReturn(mockResultSet);
+            when(mockResultSet.next()).thenReturn(true);
+            when(mockResultSet.getInt("product_id")).thenReturn(1);
+            when(mockResultSet.getString("name")).thenReturn("Test Product");
+            when(mockResultSet.getString("description")).thenReturn("Test Description");
+            when(mockResultSet.getDouble("price")).thenReturn(99.99);
+            when(mockResultSet.getString("image")).thenReturn("testimage.jpg");
+            when(mockResultSet.getInt("quantity")).thenReturn(10);
+            when(mockResultSet.getInt("weight")).thenReturn(100);
+            when(mockResultSet.getInt("category_id")).thenReturn(1);
+            when(mockResultSet.getInt("customer_id")).thenReturn(1);
+
+            when(model.addAttribute("productId", 123)).thenReturn(model);
+            when(model.addAttribute("productName", "Test Product")).thenReturn(model);
+            when(model.addAttribute("description", "Test Description")).thenReturn(model);
+            when(model.addAttribute("price", 99.99)).thenReturn(model);
+
+            String viewName = userCont.addToCart(productId);
+
+            assertEquals("cartproduct", viewName);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+     @Test
+    void testProfileDisplay() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/profileDisplay");
+        MockMvcBuilders.standaloneSetup(userCont)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("profile"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("profile"));
+    }
+     @Test
+    void testDeleteCartItem() throws Exception {
+        MockHttpServletRequestBuilder postResult = MockMvcRequestBuilders.post("/deleteCartItem");
+        MockHttpServletRequestBuilder requestBuilder = postResult.param("id", String.valueOf(1));
+        MockMvcBuilders.standaloneSetup(userCont)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isFound())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("redirect:/cartproduct"))
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/cartproduct"));
+    }
+    @Test
+    void testBuy() {
+
+        assertEquals("buy", (new UserController()).buy());
+    }
+    @Test
+    void testViewCartProduct() {
+
+        assertEquals("cartproduct", (new UserController()).viewCartProduct());
+    }
+     @Test
+    void testGetproduct() throws Exception {
+        when(productS.getProducts()).thenReturn(new ArrayList<>());
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/user/products");
+        MockMvcBuilders.standaloneSetup(userCont)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().size(1))
+                .andExpect(MockMvcResultMatchers.model().attributeExists("msg"))
+                .andExpect(MockMvcResultMatchers.view().name("uproduct"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("uproduct"));
+    }
+    @Test
+    void testReturnIndex() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/");
+        MockMvcBuilders.standaloneSetup(userCont)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("userLogin"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("userLogin"));
+    }
+    @Test
+    void testViewCart() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/cart");
+        MockMvcBuilders.standaloneSetup(userCont)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("cartproduct"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("cartproduct"));
+    }
+    @Test
+    void testViewCartSecond() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/cart");
+        requestBuilder.characterEncoding("Encoding");
+        MockMvcBuilders.standaloneSetup(userCont)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("cartproduct"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("cartproduct"));
+    }
+    
 
 
 }
