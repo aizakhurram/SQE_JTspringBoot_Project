@@ -174,6 +174,17 @@ class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.view().name("uproduct"))
                 .andExpect(MockMvcResultMatchers.forwardedUrl("uproduct"));
     }
+    @Test
+    void testReturnIndex() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/");
+        MockMvcBuilders.standaloneSetup(userCont)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("userLogin"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("userLogin"));
+    }
 
 
 }
