@@ -167,4 +167,9 @@ class AdminControllerTest {
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post("/admin/categories", new Object[0]).param("categoryname", new String[]{"foo"});
         MockMvcBuilders.standaloneSetup(new Object[]{this.adminController}).build().perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isFound()).andExpect(MockMvcResultMatchers.model().size(0)).andExpect(MockMvcResultMatchers.view().name("redirect:categories")).andExpect(MockMvcResultMatchers.redirectedUrl("categories"));
     }
+      @Test
+    void testAdminHome() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/Dashboard", new Object[0]);
+        MockMvcBuilders.standaloneSetup(new Object[]{this.adminController}).build().perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isFound()).andExpect(MockMvcResultMatchers.model().size(0)).andExpect(MockMvcResultMatchers.view().name("redirect:/admin/login")).andExpect(MockMvcResultMatchers.redirectedUrl("/admin/login"));
+    }
 }
