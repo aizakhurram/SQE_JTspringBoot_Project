@@ -39,7 +39,7 @@ public class AdminController {
 	String usernameforclass = "";
 	@RequestMapping(value = {"/","/logout"})
 	public String returnIndex() {
-		return "userLogin";
+		return "adminlogin";
 	}
 
 
