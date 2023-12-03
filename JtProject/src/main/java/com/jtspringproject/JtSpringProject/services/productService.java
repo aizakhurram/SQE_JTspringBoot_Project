@@ -24,7 +24,7 @@ public class productService {
 	public Product getProduct(int id) {
 		return this.productDao.getProduct(id);
 	}
-
+	@Transactional
 	public Product updateProduct(int id,Product product){
 		product.setId(id);
 		return this.productDao.updateProduct(product);
