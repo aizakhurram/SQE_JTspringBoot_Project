@@ -91,10 +91,10 @@
 					
 
 					<td>
-					<form action="cart/delete" method="get">
-							<input type="hidden" name="id" value="<%=rs.getInt(1)%>">
-							<input type="submit" value="Delete" class="btn btn-danger">
-					</form>
+					<form action="deleteCartItem" method="post">
+					<input type="hidden" name="id" value="<%= rs.getInt("product_id") %>">
+					<input type="submit" value="Delete" class="btn btn-danger">
+				</form>
 					</td>
 					
 
