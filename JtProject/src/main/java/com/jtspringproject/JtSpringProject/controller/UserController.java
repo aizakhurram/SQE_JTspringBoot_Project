@@ -340,6 +340,69 @@ public class UserController{
 			}
 		}
 
+	
+	// Add to Cart Button implementation on uproduct.jsp Page
+	@PostMapping("/addToCart")
+	public String addToCart(@RequestParam("product_id") int productId) {
+		System.out.println("Product ID added to cart: " + productId);
+		try {
+			//Change password to your own database password
+			Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ecommjava", "root", "tayyab3037");
+			PreparedStatement stmt = con.prepareStatement("SELECT * FROM product WHERE product_id = ?");
+
+			stmt.setInt(1, productId);
+			ResultSet rst = stmt.executeQuery();
+
+			//Data Retreival
+			if (rst.next()) {
+				int productIdFromDB = rst.getInt("product_id");
+				String productName = rst.getString("name");
+				String description = rst.getString("description");
+				double price = rst.getDouble("price");
+				String imageFromDB = rst.getString("image");
+				int quantityFromDB = rst.getInt("quantity");
+				int weightFromDB = rst.getInt("weight");
+				int categoryIdFromDB = rst.getInt("category_id");
+				int customerIdFromDB = rst.getInt("customer_id");
+
+
+				System.out.println("Product ID: " + productIdFromDB);
+				System.out.println("Product Name: " + productName);
+				System.out.println("Description: " + description);
+				System.out.println("Price: " + price);
+
+				// Now you can use the retrieved data to insert into the 'product_cart' table
+				String insertQuery = "INSERT INTO Product_cart (product_id, description, name, price, image, quantity, weight, category_id, customer_id) " +
+						"VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
+				try (PreparedStatement insertStmt = con.prepareStatement(insertQuery)) {
+					insertStmt.setInt(1, productIdFromDB);
+					insertStmt.setString(2, description);
+					insertStmt.setString(3, productName);
+					insertStmt.setDouble(4, price);
+					insertStmt.setString(5, imageFromDB);
+					insertStmt.setInt(6, quantityFromDB);
+					insertStmt.setInt(7, weightFromDB);
+					insertStmt.setInt(8, categoryIdFromDB);
+					insertStmt.setInt(9, customerIdFromDB);
+
+					// Execute the insert statement
+					int rowsAffected = insertStmt.executeUpdate();
+
+
+				} catch (SQLException ex) {
+					throw new RuntimeException(ex);
+				}
+			}
+			// Add your logic to store the product information, maybe in a session or database table
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+			return "redirect:/index"; // Redirect to the index page or any other page
+
+	}
+
 
 	@GetMapping("/cart")
 	public String viewCart(Model model) {
