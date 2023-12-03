@@ -226,6 +226,16 @@ public class UserController{
 			System.out.println("Exception:"+e);
 		}
 		ModelAndView mv= new ModelAndView("index");
+		User u= this.userService.checkLogin(usernameforclass,passforclass);
+
+		mv.addObject("user", u);
+
+		List<Product> products = this.productService.getProducts();
+		if (products.isEmpty()) {
+			mv.addObject("msg", "No products are available");
+		} else {
+			mv.addObject("products", products);
+		}
 		return mv;
 	}
 
