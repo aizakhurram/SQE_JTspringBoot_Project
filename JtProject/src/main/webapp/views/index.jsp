@@ -39,7 +39,7 @@
             <ul class="navbar-nav mr-auto"></ul>
             <ul class="navbar-nav">
                 <li class="nav-item active">
-                    <a class="nav-link" th:href="@{/}" href="#">CART</a>
+                    <a class="nav-link" th:href="@{/cartproduct}" href="cartproduct">CART</a>
                 </li>
                  <li class="nav-item active">
                     <a class="nav-link" href="profileDisplay" >Profile</a>
