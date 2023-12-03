@@ -95,7 +95,10 @@
               <h5 class="card-text">Category: ${product.category.name}</h5>
               <h5 class="card-text">Price: ${product.price}</h5>
               <p class="card-text">Description: ${product.description}</p>
-              <a href="#" class="btn btn-primary">Add to Cart</a>
+              <form action="index" method="post">
+                    <input type="hidden" name="product_id" value="${product.id}">
+                    <button class="btn btn-danger" type="submit">Add to Cart</button>
+                </form>
             </div>
           </div>
         </div> </c:forEach>
