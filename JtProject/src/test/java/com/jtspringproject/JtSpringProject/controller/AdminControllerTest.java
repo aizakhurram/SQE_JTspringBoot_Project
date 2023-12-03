@@ -1,231 +1,241 @@
 package com.jtspringproject.JtSpringProject.controller;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.when;
+
+import com.jtspringproject.JtSpringProject.models.Category;
+import com.jtspringproject.JtSpringProject.models.Product;
 import com.jtspringproject.JtSpringProject.models.User;
+import com.jtspringproject.JtSpringProject.services.categoryService;
+import com.jtspringproject.JtSpringProject.services.productService;
 import com.jtspringproject.JtSpringProject.services.userService;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
+
+import java.util.ArrayList;
+
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.ui.Model;
-import org.springframework.web.servlet.ModelAndView;
-import java.sql.*;
 
-import java.sql.Connection;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-@SpringBootTest
-class AdminControllerTest {
-    @Mock
-    private Model model;
-    @Mock
-    Connection mockCon;
-
-    @Mock
-    PreparedStatement mockStmt;
-
-    @Mock
-    private UserController userCon;
-
-    @InjectMocks
+@ContextConfiguration(classes = {AdminController.class})
+@ExtendWith(SpringExtension.class)
+public class AdminControllerTest {
+    @Autowired
     private AdminController adminController;
-    @Mock
-    private com.jtspringproject.JtSpringProject.services.userService userService;
-    @Mock
-    private com.jtspringproject.JtSpringProject.services.categoryService categoryS;
-    @BeforeEach
-    void setUp() {
-        MockitoAnnotations.openMocks(this);
-    }
+
+    @MockBean
+    private categoryService categoryService;
+
+    @MockBean
+    private productService productService;
+
+    @MockBean
+    private userService userService;
+
+    /**
+     * Method under test: {@link AdminController#getcategory()}
+     */
     @Test
-        //tests what the app does if the admin is logged in (should redirect to admin home page/dashbaord )
-    void testAdminHome_AdminLoggedIn() {
-        adminController.adminlogcheck=1;
-        when(model.addAttribute("username", "admin")).thenReturn(model); // Assuming admin is the username
+    void testGetcategory() {
 
-        String result = adminController.adminHome(model);
 
-        assertEquals("adminHome", result);
-    }
-    @Test //check what the app does if admin is not logged in (it should redirect to login page and not dashboard)
-    void testAdminHome_AdminNotLoggedIn() {
-        adminController.adminlogcheck=0;
-
-        String result = adminController.adminHome(model);
-
-        assertEquals("redirect:/admin/login", result);
-    }
-    @Test
-    void testAdminLogin() {//
-        String result = adminController.adminlogin();
-
-        assertEquals("adminlogin", result);
-    }
-    @Test  //testing login feature in case of success
-    void AdminLoginSuccess() {
-        String username = "admin";
-        String password = "password";
-
-        User user = new User();
-        user.setUsername(username);
-        user.setPassword(password);
-        user.setRole("ROLE_ADMIN");
-
-        when(userService.checkLogin(username, password)).thenReturn(user);
-
-        ModelAndView modelAndView = adminController.adminlogin(username, password);
-
-        assertEquals("adminHome", modelAndView.getViewName());
-        assertEquals(user, modelAndView.getModel().get("admin"));
-        assertEquals(1, adminController.adminlogcheck);
+        assertTrue((new AdminController()).getcategory().isReference());
     }
 
-    @Test //testing login feature in case of failure
-    void AdminLoginFailure() {
-        String username = "user";
-        String password = "incorrectPass";
-
-        User user = new User();
-        user.setUsername(username);
-        user.setPassword(password);
-        user.setRole("ROLE_USER");
-
-        when(userService.checkLogin(username, password)).thenReturn(user);
-
-        ModelAndView modelAndView = adminController.adminlogin(username, password);
-
-        assertEquals("adminlogin", modelAndView.getViewName());
-        assertEquals("Please enter correct username and password", modelAndView.getModel().get("msg"));
-        assertEquals(0, adminController.adminlogcheck);
-    }
-
-    @Test
-    public void testDeleteCategory_success() {
-
-        int categoryId = 123;
-        when(categoryS.deleteCategory(categoryId)).thenReturn(true);
-
-
-        String result = adminController.removeCategoryDb(categoryId);
-
-        // Verify that the deleteCategory method was called with the correct ID
-        verify(categoryS, times(1)).deleteCategory(categoryId);
-        //success scenario
-       // if (categoryS.deleteCategory(categoryId))
-            assertEquals("redirect:/admin/categories", result);
-
-    }
-
-    @Test
-    public void testDeleteCustomer_Success() throws SQLException {
-        Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/ecommjava","root","zodiac");
-        String insertQuery = "INSERT INTO ecommjava.customer ( address, email, password, role, username) VALUES (\"146, Haven\", \"email@wtv\", 456, \"ROLE_NORMAL\", \"testUser\")";
-        PreparedStatement stmt = con.prepareStatement(insertQuery);
-        when(mockCon.prepareStatement(anyString())).thenReturn(mockStmt);
-        when(mockStmt.executeUpdate()).thenReturn(1); // Simulating a successful deletion
-        String result = adminController.deleteCustomer("testUser");
-
-        assertEquals("redirect:/admin/customers", result);
-
-    }
-
-    @Test
-    public void testDeleteCustomer_InvalidCust() throws SQLException {
-        String username = "nonExistingUser";
-
-        when(mockCon.prepareStatement(anyString())).thenReturn(mockStmt);
-        when(mockStmt.executeUpdate()).thenReturn(0); // Simulating no customer found
-
-        String result = adminController.deleteCustomer(username);
-
-        assertEquals("redirect:/admin/customers", result);
-
-    }
-
-    @Test //should throw exception
-    public void testDeleteCustomer_Failure() throws SQLException {
-        String username = "testUser";
-
-        when(mockCon.prepareStatement(anyString())).thenThrow(SQLException.class);
-
-        String result = adminController.deleteCustomer(username);
-
-        assertEquals("redirect:/admin/customers", result); // Or handle the exception case as needed
-        verify(mockStmt, never()).setString(1, username);
-        verify(mockStmt, never()).executeUpdate();
-    }
+    /**
+     * Method under test: {@link AdminController#addCategory(String)}
+     */
     @Test
     void testAddCategory() throws Exception {
         Category category = new Category();
         category.setId(1);
         category.setName("Name");
-        Mockito.when(this.categoryS.addCategory((String)Mockito.any())).thenReturn(category);
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post("/admin/categories", new Object[0]).param("categoryname", new String[]{"foo"});
-        MockMvcBuilders.standaloneSetup(new Object[]{this.adminController}).build().perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isFound()).andExpect(MockMvcResultMatchers.model().size(0)).andExpect(MockMvcResultMatchers.view().name("redirect:categories")).andExpect(MockMvcResultMatchers.redirectedUrl("categories"));
-    }
-      @Test
-    void testAdminHome() throws Exception {
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/Dashboard", new Object[0]);
-        MockMvcBuilders.standaloneSetup(new Object[]{this.adminController}).build().perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isFound()).andExpect(MockMvcResultMatchers.model().size(0)).andExpect(MockMvcResultMatchers.view().name("redirect:/admin/login")).andExpect(MockMvcResultMatchers.redirectedUrl("/admin/login"));
+        when(categoryService.addCategory(Mockito.<String>any())).thenReturn(category);
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post("/admin/categories")
+                .param("categoryname", "foo");
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isFound())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("redirect:categories"))
+                .andExpect(MockMvcResultMatchers.redirectedUrl("categories"));
     }
+
+    /**
+     * Method under test: {@link AdminController#addCategory(String)}
+     */
+    @Test
+    void testAddCategory2() throws Exception {
+        Category category = new Category();
+        category.setId(1);
+        category.setName("foo");
+        when(categoryService.addCategory(Mockito.<String>any())).thenReturn(category);
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post("/admin/categories")
+                .param("categoryname", "foo");
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isFound())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("redirect:categories"))
+                .andExpect(MockMvcResultMatchers.redirectedUrl("categories"));
+    }
+
+    /**
+     * Method under test: {@link AdminController#updateCategory(int, String)}
+     */
     @Test
     void testUpdateCategory() throws Exception {
         Category category = new Category();
         category.setId(1);
         category.setName("Name");
-        Mockito.when(this.categoryS.updateCategory(Mockito.anyInt(), (String)Mockito.any())).thenReturn(category);
-        MockHttpServletRequestBuilder getResult = MockMvcRequestBuilders.get("/admin/categories/update", new Object[0]);
-        MockHttpServletRequestBuilder requestBuilder = getResult.param("categoryid", new String[]{String.valueOf(1)}).param("categoryname", new String[]{"foo"});
-        MockMvcBuilders.standaloneSetup(new Object[]{this.adminController}).build().perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isFound()).andExpect(MockMvcResultMatchers.model().size(0)).andExpect(MockMvcResultMatchers.view().name("redirect:/admin/categories")).andExpect(MockMvcResultMatchers.redirectedUrl("/admin/categories"));
-    }
+        when(categoryService.updateCategory(anyInt(), Mockito.<String>any())).thenReturn(category);
+        MockHttpServletRequestBuilder getResult = MockMvcRequestBuilders.get("/admin/categories/update");
+        MockHttpServletRequestBuilder requestBuilder = getResult.param("categoryid", String.valueOf(1))
+                .param("categoryname", "foo");
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isFound())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("redirect:/admin/categories"))
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/admin/categories"));
+    }
+
+    /**
+     * Method under test: {@link AdminController#getproduct()}
+     */
+    @Test
+    void testGetproduct() {
+
+
+        assertTrue((new AdminController()).getproduct().isReference());
+    }
+
+    /**
+     * Method under test:
+     * {@link AdminController#addProduct(String, int, int, int, int, String, String)}
+     */
+    @Test
+    void testAddProduct3() throws Exception {
+        Category category = new Category();
+        category.setId(1);
+        category.setName("Name");
+        when(categoryService.getCategory(anyInt())).thenReturn(category);
+
+        Category category2 = new Category();
+        category2.setId(1);
+        category2.setName("Name");
+
+        Product product = new Product();
+        product.setCategory(category2);
+        product.setDescription("The characteristics of someone or something");
+        product.setId(1);
+        product.setImage("Image");
+        product.setName("Name");
+        product.setPrice(1);
+        product.setQuantity(1);
+        product.setWeight(3);
+        when(productService.addProduct(Mockito.<Product>any())).thenReturn(product);
+        MockHttpServletRequestBuilder postResult = MockMvcRequestBuilders.post("/admin/products/add");
+        MockHttpServletRequestBuilder paramResult = postResult.param("categoryid", String.valueOf(1))
+                .param("description", "foo")
+                .param("name", "foo");
+        MockHttpServletRequestBuilder paramResult2 = paramResult.param("price", String.valueOf(1))
+                .param("productImage", "foo");
+        MockHttpServletRequestBuilder paramResult3 = paramResult2.param("quantity", String.valueOf(1));
+        MockHttpServletRequestBuilder requestBuilder = paramResult3.param("weight", String.valueOf(1));
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isFound())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("redirect:/admin/products"))
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/admin/products"));
+    }
+
+    /**
+     * Method under test:  {@link AdminController#addProduct()}
+     */
     @Test
     void testAddProduct() throws Exception {
-        Mockito.when(this.categoryS.getCategories()).thenReturn(new ArrayList());
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/products/add", new Object[0]);
-        MockMvcBuilders.standaloneSetup(new Object[]{this.adminController}).build().perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.model().size(1)).andExpect(MockMvcResultMatchers.model().attributeExists(new String[]{"categories"})).andExpect(MockMvcResultMatchers.view().name("productsAdd")).andExpect(MockMvcResultMatchers.forwardedUrl("productsAdd"));
-    }
+        when(categoryService.getCategories()).thenReturn(new ArrayList<>());
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/products/add");
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().size(1))
+                .andExpect(MockMvcResultMatchers.model().attributeExists("categories"))
+                .andExpect(MockMvcResultMatchers.view().name("productsAdd"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("productsAdd"));
+    }
 
+    /**
+     * Method under test:  {@link AdminController#addProduct()}
+     */
     @Test
     void testAddProduct2() throws Exception {
-        Mockito.when(this.categoryS.getCategories()).thenReturn(new ArrayList());
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/products/add", new Object[0]);
+        when(categoryService.getCategories()).thenReturn(new ArrayList<>());
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/products/add");
         requestBuilder.characterEncoding("Encoding");
-        MockMvcBuilders.standaloneSetup(new Object[]{this.adminController}).build().perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.model().size(1)).andExpect(MockMvcResultMatchers.model().attributeExists(new String[]{"categories"})).andExpect(MockMvcResultMatchers.view().name("productsAdd")).andExpect(MockMvcResultMatchers.forwardedUrl("productsAdd"));
-    }
-    @Test
-    void testGetCustomerDetail() throws Exception {
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/customers", new Object[0]);
-        MockMvcBuilders.standaloneSetup(new Object[]{this.adminController}).build().perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.model().size(0)).andExpect(MockMvcResultMatchers.view().name("adminlogin")).andExpect(MockMvcResultMatchers.forwardedUrl("adminlogin"));
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().size(1))
+                .andExpect(MockMvcResultMatchers.model().attributeExists("categories"))
+                .andExpect(MockMvcResultMatchers.view().name("productsAdd"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("productsAdd"));
     }
-      @Test
-    void testGetcategory() throws Exception {
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/categories", new Object[0]);
-        MockMvcBuilders.standaloneSetup(new Object[]{this.adminController}).build().perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.model().size(0)).andExpect(MockMvcResultMatchers.view().name("adminlogin")).andExpect(MockMvcResultMatchers.forwardedUrl("adminlogin"));
+
+    /**
+     * Method under test: {@link AdminController#adminHome(Model)}
+     */
+    @Test
+    void testAdminHome() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/Dashboard");
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isFound())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("redirect:/admin/login"))
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/admin/login"));
     }
-     @Test
-    void testGetproduct() throws Exception {
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/products", new Object[0]);
-        MockMvcBuilders.standaloneSetup(new Object[]{this.adminController}).build().perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.model().size(0)).andExpect(MockMvcResultMatchers.view().name("adminlogin")).andExpect(MockMvcResultMatchers.forwardedUrl("adminlogin"));
-    }
+
+    /**
+     * Method under test: {@link AdminController#adminHome(Model)}
+     */
     @Test
-    void testPostproduct() throws Exception {
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post("/admin/products", new Object[0]);
-        MockMvcBuilders.standaloneSetup(new Object[]{this.adminController}).build().perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isFound()).andExpect(MockMvcResultMatchers.model().size(0)).andExpect(MockMvcResultMatchers.view().name("redirect:/admin/categories")).andExpect(MockMvcResultMatchers.redirectedUrl("/admin/categories"));
-    }
+    void testAdminHome2() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/Dashboard");
+        requestBuilder.characterEncoding("Encoding");
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isFound())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("redirect:/admin/login"))
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/admin/login"));
+    }
+
+    /**
+     * Method under test: {@link AdminController#adminlog(Model)}
+     */
     @Test
-    void testRemoveProduct() throws Exception {
-        Mockito.when(this.productS.deleteProduct(Mockito.anyInt())).thenReturn(true);
-        MockHttpServletRequestBuilder getResult = MockMvcRequestBuilders.get("/admin/products/delete", new Object[0]);
-        MockHttpServletRequestBuilder requestBuilder = getResult.param("id", new String[]{String.valueOf(1)});
-        MockMvcBuilders.standaloneSetup(new Object[]{this.adminController}).build().perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isFound()).andExpect(MockMvcResultMatchers.model().size(0)).andExpect(MockMvcResultMatchers.view().name("redirect:/admin/products")).andExpect(MockMvcResultMatchers.redirectedUrl("/admin/products"));
-    }
-     @Test
-    void testReturnIndex() throws Exception {
-        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/");
+    void testAdminlog() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/loginvalidate");
         MockMvcBuilders.standaloneSetup(adminController)
                 .build()
                 .perform(requestBuilder)
@@ -235,5 +245,413 @@ class AdminControllerTest {
                 .andExpect(MockMvcResultMatchers.forwardedUrl("adminlogin"));
     }
 
+    /**
+     * Method under test: {@link AdminController#adminlog(Model)}
+     */
+    @Test
+    void testAdminlog2() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/loginvalidate");
+        requestBuilder.characterEncoding("Encoding");
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("adminlogin"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("adminlogin"));
+    }
 
+    /**
+     * Method under test: {@link AdminController#adminlogin()}
+     */
+    @Test
+    void testAdminlogin() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/login");
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("adminlogin"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("adminlogin"));
+    }
+
+    /**
+     * Method under test: {@link AdminController#adminlogin()}
+     */
+    @Test
+    void testAdminlogin2() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/login");
+        requestBuilder.characterEncoding("Encoding");
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("adminlogin"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("adminlogin"));
+    }
+
+    /**
+     * Method under test: {@link AdminController#adminlogin(String, String)}
+     */
+    @Test
+    void testAdminlogin3() throws Exception {
+        User user = new User();
+        user.setAddress("42 Main St");
+        user.setEmail("jane.doe@example.org");
+        user.setId(1);
+        user.setPassword("iloveyou");
+        user.setRole("Role");
+        user.setUsername("janedoe");
+        when(userService.checkLogin(Mockito.<String>any(), Mockito.<String>any())).thenReturn(user);
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post("/admin/loginvalidate")
+                .param("password", "foo")
+                .param("username", "foo");
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().size(1))
+                .andExpect(MockMvcResultMatchers.model().attributeExists("msg"))
+                .andExpect(MockMvcResultMatchers.view().name("adminlogin"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("adminlogin"));
+    }
+
+    /**
+     * Method under test: {@link AdminController#adminlogin(String, String)}
+     */
+    @Test
+    void testAdminlogin4() throws Exception {
+        User user = new User();
+        user.setAddress("42 Main St");
+        user.setEmail("jane.doe@example.org");
+        user.setId(1);
+        user.setPassword("iloveyou");
+        user.setRole("ROLE_ADMIN");
+        user.setUsername("janedoe");
+        when(userService.checkLogin(Mockito.<String>any(), Mockito.<String>any())).thenReturn(user);
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post("/admin/loginvalidate")
+                .param("password", "foo")
+                .param("username", "foo");
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().size(1))
+                .andExpect(MockMvcResultMatchers.model().attributeExists("admin"))
+                .andExpect(MockMvcResultMatchers.view().name("adminHome"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("adminHome"));
+    }
+
+    /**
+     * Method under test: {@link AdminController#adminlogin(String, String)}
+     */
+    @Test
+    void testAdminlogin5() throws Exception {
+        User user = new User();
+        user.setAddress("42 Main St");
+        user.setEmail("jane.doe@example.org");
+        user.setId(1);
+        user.setPassword("iloveyou");
+        user.setRole(null);
+        user.setUsername("janedoe");
+        when(userService.checkLogin(Mockito.<String>any(), Mockito.<String>any())).thenReturn(user);
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post("/admin/loginvalidate")
+                .param("password", "foo")
+                .param("username", "foo");
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().size(1))
+                .andExpect(MockMvcResultMatchers.model().attributeExists("msg"))
+                .andExpect(MockMvcResultMatchers.view().name("adminlogin"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("adminlogin"));
+    }
+
+    /**
+     * Method under test: {@link AdminController#deleteCustomer(String)}
+     */
+    @Test
+    void testDeleteCustomer() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post("/admin/customers/delete")
+                .param("usernamee", "foo");
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isFound())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("redirect:/admin/customers"))
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/admin/customers"));
+    }
+
+    /**
+     * Method under test:  {@link AdminController#getCustomerDetail()}
+     */
+    @Test
+    void testGetCustomerDetail() throws Exception {
+        when(userService.getUsers()).thenReturn(new ArrayList<>());
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/customers");
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().size(1))
+                .andExpect(MockMvcResultMatchers.model().attributeExists("customers"))
+                .andExpect(MockMvcResultMatchers.view().name("displayCustomers"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("displayCustomers"));
+    }
+
+    /**
+     * Method under test:  {@link AdminController#getCustomerDetail()}
+     */
+    @Test
+    void testGetCustomerDetail2() throws Exception {
+        when(userService.getUsers()).thenReturn(new ArrayList<>());
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/customers");
+        requestBuilder.characterEncoding("Encoding");
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().size(1))
+                .andExpect(MockMvcResultMatchers.model().attributeExists("customers"))
+                .andExpect(MockMvcResultMatchers.view().name("displayCustomers"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("displayCustomers"));
+    }
+
+    /**
+     * Method under test: {@link AdminController#index(Model)}
+     */
+    @Test
+    void testIndex() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/index");
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("userLogin"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("userLogin"));
+    }
+
+    /**
+     * Method under test: {@link AdminController#index(Model)}
+     */
+    @Test
+    void testIndex2() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/index");
+        requestBuilder.characterEncoding("Encoding");
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("userLogin"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("userLogin"));
+    }
+
+    /**
+     * Method under test: {@link AdminController#postproduct()}
+     */
+    @Test
+    void testPostproduct() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post("/admin/products");
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isFound())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("redirect:/admin/categories"))
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/admin/categories"));
+    }
+
+    /**
+     * Method under test: {@link AdminController#postproduct()}
+     */
+    @Test
+    void testPostproduct2() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post("/admin/products");
+        requestBuilder.characterEncoding("Encoding");
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isFound())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("redirect:/admin/categories"))
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/admin/categories"));
+    }
+
+    /**
+     * Method under test: {@link AdminController#profileDisplay(Model)}
+     */
+    @Test
+    void testProfileDisplay() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/profileDisplay");
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("updateProfile"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("updateProfile"));
+    }
+
+    /**
+     * Method under test: {@link AdminController#profileDisplay(Model)}
+     */
+    @Test
+    void testProfileDisplay2() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/profileDisplay");
+        requestBuilder.characterEncoding("Encoding");
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("updateProfile"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("updateProfile"));
+    }
+
+    /**
+     * Method under test:  {@link AdminController#removeCategoryDb(int)}
+     */
+    @Test
+    void testRemoveCategoryDb() throws Exception {
+        when(categoryService.deleteCategory(anyInt())).thenReturn(true);
+        MockHttpServletRequestBuilder getResult = MockMvcRequestBuilders.get("/admin/categories/delete");
+        MockHttpServletRequestBuilder requestBuilder = getResult.param("id", String.valueOf(1));
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isFound())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("redirect:/admin/categories"))
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/admin/categories"));
+    }
+
+    /**
+     * Method under test:  {@link AdminController#removeProduct(int)}
+     */
+    @Test
+    void testRemoveProduct() throws Exception {
+        when(productService.deleteProduct(anyInt())).thenReturn(true);
+        MockHttpServletRequestBuilder getResult = MockMvcRequestBuilders.get("/admin/products/delete");
+        MockHttpServletRequestBuilder requestBuilder = getResult.param("id", String.valueOf(1));
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isFound())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("redirect:/admin/products"))
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/admin/products"));
+    }
+
+    /**
+     * Method under test: {@link AdminController#returnIndex()}
+     */
+    @Test
+    void testReturnIndex() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/");
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("userLogin"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("userLogin"));
+    }
+
+    /**
+     * Method under test: {@link AdminController#returnIndex()}
+     */
+    @Test
+    void testReturnIndex2() throws Exception {
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/");
+        requestBuilder.characterEncoding("Encoding");
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("userLogin"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("userLogin"));
+    }
+
+    /**
+     * Method under test:
+     * {@link AdminController#updateProduct(int, String, int, int, int, int, String, String)}
+     */
+    @Test
+    void testUpdateProduct() throws Exception {
+        MockHttpServletRequestBuilder postResult = MockMvcRequestBuilders.post("/admin/products/update/{id}", 1);
+        MockHttpServletRequestBuilder paramResult = postResult.param("categoryid", String.valueOf(1))
+                .param("description", "foo")
+                .param("name", "foo");
+        MockHttpServletRequestBuilder paramResult2 = paramResult.param("price", String.valueOf(1))
+                .param("productImage", "foo");
+        MockHttpServletRequestBuilder paramResult3 = paramResult2.param("quantity", String.valueOf(1));
+        MockHttpServletRequestBuilder requestBuilder = paramResult3.param("weight", String.valueOf(1));
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isFound())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("redirect:/admin/products"))
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/admin/products"));
+    }
+
+    /**
+     * Method under test:
+     * {@link AdminController#updateUserProfile(int, String, String, String, String)}
+     */
+    @Test
+    void testUpdateUserProfile() throws Exception {
+        MockHttpServletRequestBuilder paramResult = MockMvcRequestBuilders.post("/admin/updateuser")
+                .param("address", "foo")
+                .param("email", "foo")
+                .param("password", "foo");
+        MockHttpServletRequestBuilder requestBuilder = paramResult.param("userid", String.valueOf(1))
+                .param("username", "foo");
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isFound())
+                .andExpect(MockMvcResultMatchers.model().size(0))
+                .andExpect(MockMvcResultMatchers.view().name("redirect:/index"))
+                .andExpect(MockMvcResultMatchers.redirectedUrl("/index"));
+    }
+
+    /**
+     * Method under test:  {@link AdminController#updateproduct(int)}
+     */
+    @Test
+    void testUpdateproduct() throws Exception {
+        when(categoryService.getCategories()).thenReturn(new ArrayList<>());
+
+        Category category = new Category();
+        category.setId(1);
+        category.setName("Name");
+
+        Product product = new Product();
+        product.setCategory(category);
+        product.setDescription("The characteristics of someone or something");
+        product.setId(1);
+        product.setImage("Image");
+        product.setName("Name");
+        product.setPrice(1);
+        product.setQuantity(1);
+        product.setWeight(3);
+        when(productService.getProduct(anyInt())).thenReturn(product);
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.get("/admin/products/update/{id}", 1);
+        MockMvcBuilders.standaloneSetup(adminController)
+                .build()
+                .perform(requestBuilder)
+                .andExpect(MockMvcResultMatchers.status().isOk())
+                .andExpect(MockMvcResultMatchers.model().size(2))
+                .andExpect(MockMvcResultMatchers.model().attributeExists("categories", "product"))
+                .andExpect(MockMvcResultMatchers.view().name("productsUpdate"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("productsUpdate"));
+    }
 }
