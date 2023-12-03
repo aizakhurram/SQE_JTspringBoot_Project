@@ -158,4 +158,13 @@ class AdminControllerTest {
         verify(mockStmt, never()).setString(1, username);
         verify(mockStmt, never()).executeUpdate();
     }
+    @Test
+    void testAddCategory() throws Exception {
+        Category category = new Category();
+        category.setId(1);
+        category.setName("Name");
+        Mockito.when(this.categoryS.addCategory((String)Mockito.any())).thenReturn(category);
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders.post("/admin/categories", new Object[0]).param("categoryname", new String[]{"foo"});
+        MockMvcBuilders.standaloneSetup(new Object[]{this.adminController}).build().perform(requestBuilder).andExpect(MockMvcResultMatchers.status().isFound()).andExpect(MockMvcResultMatchers.model().size(0)).andExpect(MockMvcResultMatchers.view().name("redirect:categories")).andExpect(MockMvcResultMatchers.redirectedUrl("categories"));
+    }
 }
