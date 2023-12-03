@@ -432,8 +432,8 @@ public class AdminControllerTest {
                 .perform(requestBuilder)
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.model().size(0))
-                .andExpect(MockMvcResultMatchers.view().name("userLogin"))
-                .andExpect(MockMvcResultMatchers.forwardedUrl("userLogin"));
+                .andExpect(MockMvcResultMatchers.view().name("adminlogin"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("adminlogin"));
     }
 
     /**
@@ -448,8 +448,8 @@ public class AdminControllerTest {
                 .perform(requestBuilder)
                 .andExpect(MockMvcResultMatchers.status().isOk())
                 .andExpect(MockMvcResultMatchers.model().size(0))
-                .andExpect(MockMvcResultMatchers.view().name("userLogin"))
-                .andExpect(MockMvcResultMatchers.forwardedUrl("userLogin"));
+                .andExpect(MockMvcResultMatchers.view().name("adminlogin"))
+                .andExpect(MockMvcResultMatchers.forwardedUrl("adminlogin"));
     }
 
     /**
