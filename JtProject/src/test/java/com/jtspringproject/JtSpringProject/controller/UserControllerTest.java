@@ -147,7 +147,16 @@ class UserControllerTest {
                 .andExpect(MockMvcResultMatchers.view().name("redirect:/cartproduct"))
                 .andExpect(MockMvcResultMatchers.redirectedUrl("/cartproduct"));
     }
+    @Test
+    void testBuy() {
 
+        assertEquals("buy", (new UserController()).buy());
+    }
+    @Test
+    void testViewCartProduct() {
+
+        assertEquals("cartproduct", (new UserController()).viewCartProduct());
+    }
 
 
 }
