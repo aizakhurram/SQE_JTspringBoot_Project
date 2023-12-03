@@ -104,9 +104,8 @@
 					</form>
 					</td>
 					<td>
-					<form action="products/update/${product.id}" method="get">
-                        <input type="submit" value="Update" class="btn btn-warning">
-                    </form>
+					<a style="margin: 20px 0" class="btn btn-warning"
+						   href="/admin/products/update/${product.id}">Update</a><br>
 
 					</td>
 
