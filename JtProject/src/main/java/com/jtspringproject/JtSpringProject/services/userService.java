@@ -12,7 +12,7 @@ import com.jtspringproject.JtSpringProject.models.User;
 @Service
 public class userService {
 	@Autowired
-	private userDao userDao;
+	public userDao userDao;
 	
 	public List<User> getUsers(){
 		return this.userDao.getAllUser();
