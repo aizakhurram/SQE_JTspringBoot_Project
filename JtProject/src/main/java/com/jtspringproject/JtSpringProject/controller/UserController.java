@@ -3,7 +3,7 @@ package com.jtspringproject.JtSpringProject.controller;
 import com.jtspringproject.JtSpringProject.models.Cart;
 import com.jtspringproject.JtSpringProject.models.Product;
 import com.jtspringproject.JtSpringProject.models.User;
-
+import java.sql.SQLException
 import java.io.Console;
 import java.sql.Connection;
 import java.sql.DriverManager;
