@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 
 import com.jtspringproject.JtSpringProject.dao.productDao;
 import com.jtspringproject.JtSpringProject.models.Product;
+import javax.transaction.Transactional;
 
 @Service
 public class productService {
