@@ -23,7 +23,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 @ExtendWith(SpringExtension.class)
 public class userServiceTest {
     @MockBean
-    private userDao userDao;
+    public userDao userDao;
 
     @Autowired
     private userService userService;
